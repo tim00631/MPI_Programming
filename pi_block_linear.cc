@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     // ---
 
     // TODO: init MPI
-    srand(time(NULL * world_rank));
+    srand(time(NULL) * world_rank);
 
     long long int* local_count =(long long int*)malloc(sizeof(long long int) * world_rank);
     long long int total_count;
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
         // TODO: handle workers
         int number_in_circle = 0;
 
-        for (int i = 0; i < toss / world_rank; i++) {
+        for (int i = 0; i < tosses / world_rank; i++) {
             float x = fRand(-1, 1);
             float y = fRand(-1, 1);
             float distance_squared = x * x + y * y;
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     else if (world_rank == 0)
     {
         // TODO: master
-        for (int i = 0; i < toss / world_rank; i++) {
+        for (int i = 0; i < tosses / world_rank; i++) {
             float x = fRand(-1, 1);
             float y = fRand(-1, 1);
             float distance_squared = x * x + y * y;
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
             /* data         = */ &local_count[i], 
             /* count        = */ 1, 
             /* datatype     = */ MPI_LONG_LONG, 
-            /* source       = */ MPI_ANYSOURCE, 
+            /* source       = */ MPI_ANY_SOURCE, 
             /* tag          = */ 0, 
             /* communicator = */ MPI_COMM_WORLD, 
             /* status       = */ MPI_STATUS_IGNORE);
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
         for (int i = 0; i < world_rank; i++) {
             total_count += local_count[i];
         }
-        pi_result = ((double)total_count / (double)toss) * 4.0;
+        pi_result = ((double)total_count / (double)tosses) * 4.0;
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
         printf("%lf\n", pi_result);
