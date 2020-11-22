@@ -27,13 +27,12 @@ int main(int argc, char **argv)
     srand(time(NULL) * world_rank);
 
     long long int* local_count;
-    
-    if (world_rank > 0)
-    {
+
+    if (world_rank > 0) {
         // TODO: handle workers
         int number_in_circle = 0;
 
-        for (int i = 0; i < tosses / world_rank; i++) {
+        for (int i = 0; i < tosses / world_size; i++) {
             float x = fRand(-1, 1);
             float y = fRand(-1, 1);
             float distance_squared = x * x + y * y;
@@ -49,13 +48,11 @@ int main(int argc, char **argv)
         /* tag          = */ 0, 
         /* communicator = */ MPI_COMM_WORLD);
     }
-    else if (world_rank == 0)
-    {
+    else if (world_rank == 0) {
         // TODO: master
         local_count =(long long int*)malloc(sizeof(long long int) * world_rank); // initialize global variable
         
-
-        for (int i = 0; i < tosses / world_rank; i++) {
+        for (int i = 0; i < tosses / world_size; i++) {
             float x = fRand(-1, 1);
             float y = fRand(-1, 1);
             float distance_squared = x * x + y * y;
@@ -63,7 +60,8 @@ int main(int argc, char **argv)
                 local_count[0]++;
             }
         }
-        for (int i = 1; i< world_rank; i++) {
+
+        for (int i = 1; i< world_size; i++) {
             MPI_Recv(
             /* data         = */ &local_count[i], 
             /* count        = */ 1, 
@@ -75,8 +73,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if (world_rank == 0)
-    {
+    if (world_rank == 0} {
         // TODO: process PI result
         long long int total_count = 0;
 
