@@ -40,6 +40,7 @@ int main(int argc, char **argv)
                 number_in_circle++;
             }
         }
+
         MPI_Send(
         /* data         = */ &number_in_circle, 
         /* count        = */ 1, 
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
         /* tag          = */ 0, 
         /* communicator = */ MPI_COMM_WORLD);
     }
+
     else if (world_rank == 0) {
         // TODO: master
         local_count =(long long int*)malloc(sizeof(long long int) * world_rank); // initialize global variable
@@ -73,7 +75,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if (world_rank == 0} {
+    if (world_rank == 0) {
         // TODO: process PI result
         long long int total_count = 0;
 
