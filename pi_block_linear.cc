@@ -5,9 +5,27 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-double fRand(double fMin, double fMax) {
-    double f = (double)rand() / RAND_MAX;
-    return fMin + f * (fMax - fMin);
+__uint32_t xor128(void) {
+    static __uint32_t x = 123456789;
+    static __uint32_t y = 362436069;
+    static __uint32_t z = 521288629;
+    static __uint32_t w = 88675123;
+    __uint32_t t;
+
+    t = x ^ (x << 11);
+    x = y;
+    y = z;
+    z = w;
+    return w = w ^ (w >> 19) ^ t ^ (t >> 8);
+}
+
+double fRand() {
+    // long long MAX = ((long long)RAND_MAX << 31) + RAND_MAX;
+    // long long rand_num = ((long long)rand() << 31) + rand();
+    // printf("%lld, %lld, %lf\n", rand_num, MAX, (double)rand_num/MAX);
+
+    return xor128() / 4294967296.0;
+    // return ((double)rand_num / (double)MAX);
 }
 
 int main(int argc, char **argv)
@@ -33,8 +51,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
 
         for (int i = 0; i < tosses / world_size; i++) {
-            float x = fRand(-1, 1);
-            float y = fRand(-1, 1);
+            float x = fRand();
+            float y = fRand();
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
