@@ -79,7 +79,7 @@ int main(int argc, char **argv)
         // TODO: process PI result
         long long int total_count = 0;
 
-        for (int i = 0; i < world_rank; i++) {
+        for (int i = 0; i < world_size; i++) {
             total_count += local_count[i];
         }
 
