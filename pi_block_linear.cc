@@ -4,6 +4,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <immintrin.h>
 
 __uint32_t xor128(__uint32_t seed) {
     static __uint32_t x = seed;
@@ -81,7 +82,7 @@ int main(int argc, char **argv)
         }
 
         // remainder
-        for(i = 0; i<cntRem; ++i) {
+        for(int i = 0; i<cntRem; ++i) {
             double x = fRand(seed);
             double y = fRand(seed);
             double distance_squared = x * x + y * y;
@@ -132,14 +133,14 @@ int main(int argc, char **argv)
         }
 
         // remainder
-        for(i = 0; i<cntRem; ++i) {
+        for(int i = 0; i<cntRem; ++i) {
             double x = fRand(seed);
             double y = fRand(seed);
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1)
                 number_in_circle += 1;
         }
-        
+
         local_count[0] = number_in_circle;
 
         for (int i = 1; i< world_size; i++) {
