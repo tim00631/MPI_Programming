@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 __uint32_t xor128(__uint32_t seed) {
-    static __uint32_t x = 123456789;
+    static __uint32_t x = seed;
     static __uint32_t y = 362436069;
     static __uint32_t z = 521288629;
     static __uint32_t w = 88675123;
