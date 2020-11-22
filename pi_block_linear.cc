@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    __uint32_t seed = 123012024 * world_rank;
+    __uint32_t seed = time(NULL) * world_rank;
 
     long long int* local_count;
 
