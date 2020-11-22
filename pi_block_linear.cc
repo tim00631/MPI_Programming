@@ -52,15 +52,16 @@ int main(int argc, char **argv)
     else if (world_rank == 0) {
         // TODO: master
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
-        
+        long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
             float x = fRand(-1, 1);
             float y = fRand(-1, 1);
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
-                local_count[0]++;
+                number_in_circle++;
             }
         }
+        local_count[0] = number_in_circle;
 
         for (int i = 1; i< world_size; i++) {
             MPI_Recv(
@@ -79,7 +80,7 @@ int main(int argc, char **argv)
         long long int total_count = 0;
 
         for (int i = 0; i < world_size; i++) {
-            printf("local_count[i]:%lld\n", local_count[i]);
+            printf("local_count[%d]:%lld\n", i, local_count[i]);
             total_count += local_count[i];
         }
         pi_result = ((double)total_count / (double)tosses) * 4.0;
