@@ -39,7 +39,7 @@ int main(int argc, char **argv)
             }
         }
         MPI_Send(
-        /* data         = */ &count, 
+        /* data         = */ &number_in_circle, 
         /* count        = */ 1, 
         /* datatype     = */ MPI_LONG_LONG, 
         /* destination  = */ 0, 
