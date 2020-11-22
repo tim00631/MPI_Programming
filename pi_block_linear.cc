@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
     if (world_rank > 0) {
         // TODO: handle workers
-        int number_in_circle = 0;
+        long long int number_in_circle = 0;
 
         for (int i = 0; i < tosses / world_size; i++) {
             float x = fRand(-1, 1);
@@ -40,7 +40,6 @@ int main(int argc, char **argv)
                 number_in_circle++;
             }
         }
-
         MPI_Send(
         /* data         = */ &number_in_circle, 
         /* count        = */ 1, 
@@ -69,7 +68,7 @@ int main(int argc, char **argv)
             /* count        = */ 1, 
             /* datatype     = */ MPI_LONG_LONG, 
             /* source       = */ i, 
-            /* tag          = */ 0, 
+            /* tag          = */ 0,
             /* communicator = */ MPI_COMM_WORLD, 
             /* status       = */ MPI_STATUS_IGNORE);
         }
