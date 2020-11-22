@@ -80,10 +80,9 @@ int main(int argc, char **argv)
         long long int total_count = 0;
 
         for (int i = 0; i < world_size; i++) {
+            printf("local_count[i]:%d\n", local_count[]);
             total_count += local_count[i];
         }
-        printf("local_count[i]:%d\n", local_count[i]);
-
         pi_result = ((double)total_count / (double)tosses) * 4.0;
 
         // --- DON'T TOUCH ---
