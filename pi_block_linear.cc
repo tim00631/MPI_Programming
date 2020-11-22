@@ -51,44 +51,15 @@ int main(int argc, char **argv)
         // TODO: handle workers
         long long int number_in_circle = 0;
 
-        // for (int i = 0; i < iteration; i++) {
-        //     float x = fRand(seed);
-        //     float y = fRand(seed);
-        //     float distance_squared = x * x + y * y;
-        //     if (distance_squared <= 1) {
-        //         number_in_circle++;
-        //     }
-        // }
-
-        int nBlockWidth = 4; 
-        long long int cntBlock = iteration / nBlockWidth;    // episode
-        long long int cntRem = iteration % nBlockWidth;    // remainder.
-
-        // episode computing block
-        for(int i = 0; i<cntBlock; ++i) {
-            const __m256d unit = _mm256_set_pd(1, 1, 1, 1);
-            // generate 32 random bytes
-            __m256d x = _mm256_set_pd(fRand(seed),fRand(seed),fRand(seed),fRand(seed));
-            __m256d y = _mm256_set_pd(fRand(seed),fRand(seed),fRand(seed),fRand(seed));
-            __m256d square_x = _mm256_mul_pd(x, x);
-            __m256d square_y = _mm256_mul_pd(y, y);
-            __m256d square_sum = _mm256_add_pd(square_x, square_y);
-            __m256d v_cmp = _mm256_cmp_pd(square_sum, unit, _CMP_LE_OS);
-            int result = _mm256_movemask_pd(v_cmp);
-
-            if (result != 0) {
-                number_in_circle += _mm_popcnt_u32(result);
+        for (int i = 0; i < iteration; i++) {
+            float x = fRand(seed);
+            float y = fRand(seed);
+            float distance_squared = x * x + y * y;
+            if (distance_squared <= 1) {
+                number_in_circle++;
             }
         }
 
-        // remainder
-        for(int i = 0; i<cntRem; ++i) {
-            double x = fRand(seed);
-            double y = fRand(seed);
-            double distance_squared = x * x + y * y;
-            if (distance_squared <= 1)
-                number_in_circle += 1;
-        }
         MPI_Send(
         /* data         = */ &number_in_circle, 
         /* count        = */ 1, 
@@ -102,45 +73,14 @@ int main(int argc, char **argv)
         // TODO: master
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
-        // for (int i = 0; i < tosses / world_size; i++) {
-        //     float x = fRand(seed);
-        //     float y = fRand(seed);
-        //     float distance_squared = x * x + y * y;
-        //     if (distance_squared <= 1) {
-        //         number_in_circle++;
-        //     }
-        // }
-        // local_count[0] = number_in_circle;
-
-        int nBlockWidth = 4; 
-        long long int cntBlock = iteration / nBlockWidth;    // episode
-        long long int cntRem = iteration % nBlockWidth;    // remainder.
-        // episode computing block
-        for(int i = 0; i<cntBlock; ++i) {
-            const __m256d unit = _mm256_set_pd(1, 1, 1, 1);
-            // generate 32 random bytes
-            __m256d x = _mm256_set_pd(fRand(seed),fRand(seed),fRand(seed),fRand(seed));
-            __m256d y = _mm256_set_pd(fRand(seed),fRand(seed),fRand(seed),fRand(seed));
-            __m256d square_x = _mm256_mul_pd(x, x);
-            __m256d square_y = _mm256_mul_pd(y, y);
-            __m256d square_sum = _mm256_add_pd(square_x, square_y);
-            __m256d v_cmp = _mm256_cmp_pd(square_sum, unit, _CMP_LE_OS);
-            int result = _mm256_movemask_pd(v_cmp);
-
-            if (result != 0) {
-                number_in_circle += _mm_popcnt_u32(result);
+        for (int i = 0; i < tosses / world_size; i++) {
+            float x = fRand(seed);
+            float y = fRand(seed);
+            float distance_squared = x * x + y * y;
+            if (distance_squared <= 1) {
+                number_in_circle++;
             }
         }
-
-        // remainder
-        for(int i = 0; i<cntRem; ++i) {
-            double x = fRand(seed);
-            double y = fRand(seed);
-            double distance_squared = x * x + y * y;
-            if (distance_squared <= 1)
-                number_in_circle += 1;
-        }
-
         local_count[0] = number_in_circle;
 
         for (int i = 1; i< world_size; i++) {
