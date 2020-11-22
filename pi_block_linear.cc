@@ -22,9 +22,7 @@ int main(int argc, char **argv)
 
     // TODO: init MPI
     srand(time(NULL) * world_rank);
-
-    long long int* local_count =(long long int*)malloc(sizeof(long long int) * world_rank);
-    long long int total_count;
+    long long int* local_count;
     if (world_rank > 0)
     {
         // TODO: handle workers
@@ -49,6 +47,9 @@ int main(int argc, char **argv)
     else if (world_rank == 0)
     {
         // TODO: master
+        local_count =(long long int*)malloc(sizeof(long long int) * world_rank); // initialize global variable
+        
+
         for (int i = 0; i < tosses / world_rank; i++) {
             float x = fRand(-1, 1);
             float y = fRand(-1, 1);
@@ -72,10 +73,14 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         // TODO: process PI result
+        long long int total_count = 0;
+
         for (int i = 0; i < world_rank; i++) {
             total_count += local_count[i];
         }
+
         pi_result = ((double)total_count / (double)tosses) * 4.0;
+
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
         printf("%lf\n", pi_result);
