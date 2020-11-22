@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
     else if (world_rank == 0) {
         // TODO: master
-        local_count =(long long int*)malloc(sizeof(long long int) * world_rank); // initialize global variable
+        local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         
         for (int i = 0; i < tosses / world_size; i++) {
             float x = fRand(-1, 1);
