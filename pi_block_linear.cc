@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-__uint32_t xor128(void) {
+__uint32_t xor128(__uint32_t seed) {
     static __uint32_t x = 123456789;
     static __uint32_t y = 362436069;
     static __uint32_t z = 521288629;
@@ -19,12 +19,12 @@ __uint32_t xor128(void) {
     return w = w ^ (w >> 19) ^ t ^ (t >> 8);
 }
 
-double fRand() {
+double fRand(__uint32_t seed) {
     // long long MAX = ((long long)RAND_MAX << 31) + RAND_MAX;
     // long long rand_num = ((long long)rand() << 31) + rand();
     // printf("%lld, %lld, %lf\n", rand_num, MAX, (double)rand_num/MAX);
 
-    return xor128() / 4294967296.0;
+    return xor128(seed) / 4294967296.0;
     // return ((double)rand_num / (double)MAX);
 }
 
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    srand(time(NULL) * world_rank);
+    __uint32_t seed = seed(123012024) * world_rank;
 
     long long int* local_count;
 
@@ -51,8 +51,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
 
         for (int i = 0; i < tosses / world_size; i++) {
-            float x = fRand();
-            float y = fRand();
+            float x = fRand(seed);
+            float y = fRand(seed);
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
@@ -72,8 +72,8 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
-            float x = fRand();
-            float y = fRand();
+            float x = fRand(seed);
+            float y = fRand(seed);
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
