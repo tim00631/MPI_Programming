@@ -68,7 +68,7 @@ int main(int argc, char **argv)
             /* data         = */ &local_count[i], 
             /* count        = */ 1, 
             /* datatype     = */ MPI_LONG_LONG, 
-            /* source       = */ MPI_ANY_SOURCE, 
+            /* source       = */ i, 
             /* tag          = */ 0, 
             /* communicator = */ MPI_COMM_WORLD, 
             /* status       = */ MPI_STATUS_IGNORE);
