@@ -80,8 +80,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
 
         for (int i = 0; i < iteration; i++) {
-            float x = xorshift128(state) / UINT_32_MAX;
-            float y = xorshift128(state) / UINT_32_MAX;
+            float x = (float)xorshift128(state) / UINT_32_MAX;
+            float y = (float)xorshift128(state) / UINT_32_MAX;
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
