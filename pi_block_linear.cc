@@ -33,16 +33,16 @@
 // }
 
 struct xorshift128_state {
-  uint32_t a, b, c, d;
+  u_int32_t a, b, c, d;
 };
 
 /* The state array must be initialized to not be all zero */
-uint32_t xorshift128(struct xorshift128_state *state)
+u_int32_t xorshift128(struct xorshift128_state *state)
 {
 	/* Algorithm "xor128" from p. 5 of Marsaglia, "Xorshift RNGs" */
-	uint32_t t = state->d;
+	u_int32_t t = state->d;
 
-	uint32_t const s = state->a;
+	u_int32_t const s = state->a;
 	state->d = state->c;
 	state->c = state->b;
 	state->b = s;
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    __uint32_t seed = time(NULL) * world_rank;
+    u_int32_t seed = time(NULL) * world_rank;
     struct xorshift128_state* state = (struct xorshift128_state*)malloc(sizeof(struct xorshift128_state));
     state->a = seed;
     long long iteration = tosses / world_size; 
@@ -77,8 +77,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
 
         for (int i = 0; i < iteration; i++) {
-            float x = xorshift128(state)/UINT_32_MAX;
-            float y = xorshift128(state)/UINT_32_MAX;
+            float x = xorshift128(state) / UINT_32_MAX;
+            float y = xorshift128(state) / UINT_32_MAX;
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
