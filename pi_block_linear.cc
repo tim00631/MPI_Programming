@@ -67,8 +67,8 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     __uint32_t seed = time(NULL) * world_rank;
-    xorshift128_state state;
-    state.a = seed;
+    struct xorshift128_state* state = (struct xorshift128_state*)malloc(sizeof(struct xorshift128_state));
+    state->a = seed;
     long long iteration = tosses / world_size; 
     long long int* local_count;
 
