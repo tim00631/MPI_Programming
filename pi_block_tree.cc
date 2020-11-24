@@ -16,9 +16,11 @@ int main(int argc, char **argv)
     // ---
 
     // TODO: MPI init
-
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    __uint32_t seed = time(NULL) * world_rank;
     // TODO: binary tree redunction
-
+    
     if (world_rank == 0)
     {
         // TODO: PI result
