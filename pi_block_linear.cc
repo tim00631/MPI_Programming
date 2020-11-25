@@ -70,8 +70,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
             uint64_t tmp = xorshift128p(state);
-            float x = (float)(tmp << 32 >> 32) / __UINT32_MAX__;
-            float y = (float)(tmp >> 32) / __UINT32_MAX__;
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
 
             // uint64_t tmp = next();
             // double x = (double) s[0] / __UINT64_MAX__;
@@ -98,8 +98,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
             uint64_t tmp = xorshift128p(state);
-            float x = (float)(tmp << 32 >> 32) / __UINT32_MAX__;
-            float y = (float)(tmp >> 32) / __UINT32_MAX__;
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
 
             // uint64_t tmp = next();
             // double x = (double) s[0] / __UINT64_MAX__;
