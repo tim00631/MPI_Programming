@@ -63,7 +63,7 @@ int main(int argc, char **argv)
             }
         }
         // ===== pi Estimation Block end =====
-        MPI_ISend(
+        MPI_Isend(
         /* data         = */ &number_in_circle, 
         /* count        = */ 1, 
         /* datatype     = */ MPI_LONG_LONG, 
@@ -77,13 +77,13 @@ int main(int argc, char **argv)
         // TODO: non-blocking MPI communication.
         // Use MPI_Irecv, MPI_Wait or MPI_Waitall.
         
-        MPI_Request requests[] = (MPI_Request *)malloc(sizeof(MPI_Request) * world_size);
-        MPI_Status status[] = (MPI_Status *)malloc(sizeof(MPI_Status) * world_size);
+        MPI_Request* requests = (MPI_Request *)malloc(sizeof(MPI_Request) * world_size);
+        MPI_Status* status = (MPI_Status *)malloc(sizeof(MPI_Status) * world_size);
         local_count = (uint64_t *)malloc(sizeof(uint64_t)* world_size);
 
         for(int i = 1; i < world_size; i++)
         {
-            MPI_IRecv(
+            MPI_Irecv(
             /* data         = */ &local_count[i], 
             /* count        = */ world_size-1, 
             /* datatype     = */ MPI_LONG_LONG, 
