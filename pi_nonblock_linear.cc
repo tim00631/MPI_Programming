@@ -57,7 +57,7 @@ int main(int argc, char **argv)
             uint64_t tmp = xorshift128p(state);
             double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
-            float distance_squared = x * x + y * y;
+            double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
             }
