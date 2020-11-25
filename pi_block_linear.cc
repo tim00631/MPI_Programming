@@ -5,83 +5,22 @@
 #include <sys/types.h>
 #include <unistd.h>
 #define UINT64_C(c) (c ## ULL)
-// __uint32_t xor128(__uint32_t seed) {
-//     static __uint32_t x = seed;
-//     static __uint32_t y = 362436069;
-//     static __uint32_t z = 521288629;
-//     static __uint32_t w = 88675123;
-//     __uint32_t t;
 
-//     t = x ^ (x << 11);
-//     x = y;
-//     y = z;
-//     z = w;
-//     return w = w ^ (w >> 19) ^ t ^ (t >> 8);
-// }
+struct xorshift128p_state {
+  uint64_t a, b;
+};
 
-static u_int64_t s[2];
-
-static inline u_int64_t rotl(const u_int64_t x, int k) {
-	return (x << k) | (x >> (64 - k));
-}
-
-u_int64_t next(void) {
-	const u_int64_t s0 = s[0];
-	u_int64_t s1 = s[1];
-	const u_int64_t result = s0 + s1;
-
-	s1 ^= s0;
-	s[0] = rotl(s0, 24) ^ s1 ^ (s1 << 16); // a, b
-	s[1] = rotl(s1, 37); // c
-
-	return result;
-}
-
-
-/* This is the jump function for the generator. It is equivalent
-   to 2^64 calls to next(); it can be used to generate 2^64
-   non-overlapping subsequences for parallel computations. */
-
-void jump(void) {
-	static const u_int64_t JUMP[] = { 0xdf900294d8f554a5, 0x170865df4b3201fc };
-
-	u_int64_t s0 = 0;
-	u_int64_t s1 = 0;
-	for(int i = 0; i < sizeof JUMP / sizeof *JUMP; i++)
-		for(int b = 0; b < 64; b++) {
-			if (JUMP[i] & UINT64_C(1) << b) {
-				s0 ^= s[0];
-				s1 ^= s[1];
-			}
-			next();
-		}
-
-	s[0] = s0;
-	s[1] = s1;
-}
-
-
-/* This is the long-jump function for the generator. It is equivalent to
-   2^96 calls to next(); it can be used to generate 2^32 starting points,
-   from each of which jump() will generate 2^32 non-overlapping
-   subsequences for parallel distributed computations. */
-
-void long_jump(void) {
-	static const u_int64_t LONG_JUMP[] = { 0xd2a98b26625eee7b, 0xdddf9b1090aa7ac1 };
-
-	u_int64_t s0 = 0;
-	u_int64_t s1 = 0;
-	for(int i = 0; i < sizeof LONG_JUMP / sizeof *LONG_JUMP; i++)
-		for(int b = 0; b < 64; b++) {
-			if (LONG_JUMP[i] & UINT64_C(1) << b) {
-				s0 ^= s[0];
-				s1 ^= s[1];
-			}
-			next();
-		}
-
-	s[0] = s0;
-	s[1] = s1;
+/* The state must be seeded so that it is not all zero */
+uint64_t xorshift128p(struct xorshift128p_state *state)
+{
+	uint64_t t = state->a;
+	uint64_t const s = state->b;
+	state->a = s;
+	t ^= t << 23;		// a
+	t ^= t >> 17;		// b
+	t ^= s ^ (s >> 26);	// c
+	state->b = t;
+	return t + s;
 }
 
 // float fRand(__uint32_t seed) {
@@ -108,8 +47,10 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     __uint32_t seed = time(NULL) * world_rank;
-    s[0] = seed;
-    s[1] = seed << 2;
+    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    state->a = seed;
+    state->b = seed << 2 ^ seed >> 3;
+
     long long iteration = tosses / world_size; 
     long long int* local_count;
 
@@ -117,9 +58,11 @@ int main(int argc, char **argv)
         // TODO: handle workers
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
-            long_jump();
-            double x = (double)s[0] / __UINT64_MAX__;
-            double y = (double)s[1] / __UINT64_MAX__;
+            uint64_t tmp = xorshift128p(state);
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
+            // double x = (double) s/ __UINT32_MAX__;
+            // double y = (double)s[1] / __UINT32_MAX__;
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
@@ -140,9 +83,9 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
-            long_jump();
-            double x = (double)s[0] / __UINT64_MAX__;
-            double y = (double)s[1] / __UINT64_MAX__;
+            uint64_t tmp = xorshift128p(state);
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
