@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < world_size; i++)
         {
-            printf("local_count[%d]:%lld\n", i, local_count[i]);
+            printf("local_count[%d]:%u\n", i, local_count[i]);
             total_count += local_count[i];
         }
         pi_result = ((double)total_count / (double)tosses) * 4.0;
