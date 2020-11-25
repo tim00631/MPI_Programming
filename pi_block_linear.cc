@@ -57,9 +57,9 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     __uint32_t seed = time(NULL) * (world_rank + 1);
-    // struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
-    // state->a = seed + 1;
-    // state->b = seed & 0x55555555;
+    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    state->a = seed + 1;
+    state->b = seed & 0x55555555;
     s[0] = seed;
     s[1] = s[0] & 0x55555555;
     long long iteration = tosses / world_size; 
@@ -69,12 +69,12 @@ int main(int argc, char **argv)
         // TODO: handle workers
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
-            uint64_t tmp = next();
-            // uint64_t tmp = xorshift128p(state);
-            // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
-            // double y = (double)(tmp >> 32) / __UINT32_MAX__;
-            double x = (double) s[0] / __UINT64_MAX__;
-            double y = (double) s[1] / __UINT64_MAX__;
+            // uint64_t tmp = next();
+            uint64_t tmp = xorshift128p(state);
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
+            // double x = (double) s[0] / __UINT64_MAX__;
+            // double y = (double) s[1] / __UINT64_MAX__;
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
