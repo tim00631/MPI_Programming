@@ -85,7 +85,7 @@ int main(int argc, char **argv)
         {
             MPI_Irecv(
             /* data         = */ &local_count[i], 
-            /* count        = */ world_size-1, 
+            /* count        = */ 1, 
             /* datatype     = */ MPI_LONG_LONG, 
             /* source       = */ i, 
             /* tag          = */ 0, 
