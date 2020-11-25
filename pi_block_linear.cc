@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 
     __uint32_t seed = time(NULL) * world_rank;
     s[0] = seed;
-    s[1] = seed<<2;
+    s[1] = seed << 2;
     long long iteration = tosses / world_size; 
     long long int* local_count;
 
