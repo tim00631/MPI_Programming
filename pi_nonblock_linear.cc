@@ -4,6 +4,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdint.h>
 
 struct xorshift128p_state {
   uint64_t a, b;
@@ -36,10 +37,10 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    uint32_t seed = time(NULL) * (world_rank + 1);
+    uint64_t seed = time(NULL) * (world_rank + 1);
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     state->a = seed + 1;
-    state->b = seed & 0x55555555;
+    state->b = seed & 0x5555555555555555;
 
     uint64_t* local_count;
 
@@ -115,7 +116,7 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         // TODO: PI result
-        uint64_t long long int total_count = 0;
+        uint64_t total_count = 0;
 
         for (int i = 0; i < world_size; i++)
         {
