@@ -23,14 +23,24 @@ uint64_t xorshift128p(struct xorshift128p_state *state)
 	return t + s;
 }
 
-// float fRand(__uint32_t seed) {
-//     // long long MAX = ((long long)RAND_MAX << 31) + RAND_MAX;
-//     // long long rand_num = ((long long)rand() << 31) + rand();
-//     // printf("%lld, %lld, %lf\n", rand_num, MAX, (double)rand_num/MAX);
+static inline uint64_t rotl(const uint64_t x, int k) {
+	return (x << k) | (x >> (64 - k));
+}
 
-//     return (float)xor128(seed) / __UINT32_MAX__;
-//     // return ((double)rand_num / (double)MAX);
-// }
+
+static uint64_t s[2];
+
+uint64_t next(void) {
+	const uint64_t s0 = s[0];
+	uint64_t s1 = s[1];
+	const uint64_t result = s0 + s1;
+
+	s1 ^= s0;
+	s[0] = rotl(s0, 24) ^ s1 ^ (s1 << 16); // a, b
+	s[1] = rotl(s1, 37); // c
+
+	return result;
+}
 
 int main(int argc, char **argv)
 {
@@ -46,11 +56,12 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    __uint32_t seed = time(NULL) * world_rank;
-    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
-    state->a = seed + 1;
-    state->b = seed & 0x55555555;
-
+    __uint32_t seed = time(NULL) * (world_rank + 1);
+    // struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    // state->a = seed + 1;
+    // state->b = seed & 0x55555555;
+    s[0] = seed;
+    s[1] = s[0] & 0x55555555;
     long long iteration = tosses / world_size; 
     long long int* local_count;
 
@@ -58,7 +69,8 @@ int main(int argc, char **argv)
         // TODO: handle workers
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
-            uint64_t tmp = xorshift128p(state);
+            uint64_t tmp = next();
+            // uint64_t tmp = xorshift128p(state);
             double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
             // double x = (double) s/ __UINT32_MAX__;
@@ -83,7 +95,8 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
-            uint64_t tmp = xorshift128p(state);
+            uint64_t tmp = next();
+            // uint64_t tmp = xorshift128p(state);
             double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
             float distance_squared = x * x + y * y;
