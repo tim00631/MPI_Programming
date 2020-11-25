@@ -4,7 +4,6 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <immintrin.h>
 
 __uint32_t xor128(__uint32_t seed) {
     static __uint32_t x = seed;
@@ -69,7 +68,7 @@ int main(int argc, char **argv)
         /* communicator = */ MPI_COMM_WORLD);
     }
 
-    else if (!world_rank) {
+    else if (world_rank == 0) {
         // TODO: master
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
@@ -95,7 +94,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if (!world_rank) {
+    if (world_rank == 0) {
         // TODO: process PI result
         long long int total_count = 0;
 
