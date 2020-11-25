@@ -118,8 +118,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
             long_jump();
-            double x = (double)s[0] / UINT64_MAX;
-            double y = (double)s[1] / UINT64_MAX;
+            double x = (double)s[0] / __UINT64_MAX__;
+            double y = (double)s[1] / __UINT64_MAX__;
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
@@ -141,8 +141,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
             long_jump();
-            double x = (double)s[0] / UINT64_MAX;
-            double y = (double)s[1] / UINT64_MAX;
+            double x = (double)s[0] / __UINT64_MAX__;
+            double y = (double)s[1] / __UINT64_MAX__;
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
