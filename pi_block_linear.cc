@@ -4,7 +4,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#define UINT64_C(c) (c ## ULL)
 // __uint32_t xor128(__uint32_t seed) {
 //     static __uint32_t x = seed;
 //     static __uint32_t y = 362436069;
