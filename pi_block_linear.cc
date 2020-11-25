@@ -95,8 +95,8 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
-            uint64_t tmp = next();
-            // uint64_t tmp = xorshift128p(state);
+            // uint64_t tmp = next();
+            uint64_t tmp = xorshift128p(state);
             double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
             // double x = (double) s[0] / __UINT64_MAX__;
