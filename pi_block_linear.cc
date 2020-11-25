@@ -23,24 +23,24 @@ uint64_t xorshift128p(struct xorshift128p_state *state)
 	return t + s;
 }
 
-static inline uint64_t rotl(const uint64_t x, int k) {
-	return (x << k) | (x >> (64 - k));
-}
+// static inline uint64_t rotl(const uint64_t x, int k) {
+// 	return (x << k) | (x >> (64 - k));
+// }
 
 
-static uint64_t s[2];
+// static uint64_t s[2];
 
-uint64_t next(void) {
-	const uint64_t s0 = s[0];
-	uint64_t s1 = s[1];
-	const uint64_t result = s0 + s1;
+// uint64_t next(void) {
+// 	const uint64_t s0 = s[0];
+// 	uint64_t s1 = s[1];
+// 	const uint64_t result = s0 + s1;
 
-	s1 ^= s0;
-	s[0] = rotl(s0, 24) ^ s1 ^ (s1 << 16); // a, b
-	s[1] = rotl(s1, 37); // c
+// 	s1 ^= s0;
+// 	s[0] = rotl(s0, 24) ^ s1 ^ (s1 << 16); // a, b
+// 	s[1] = rotl(s1, 37); // c
 
-	return result;
-}
+// 	return result;
+// }
 
 int main(int argc, char **argv)
 {
@@ -55,13 +55,13 @@ int main(int argc, char **argv)
     // TODO: init MPI
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
     __uint32_t seed = time(NULL) * (world_rank + 1);
+
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     state->a = seed + 1;
     state->b = seed & 0x55555555;
-    s[0] = seed;
-    s[1] = s[0] & 0x55555555;
+    // s[0] = seed;
+    // s[1] = s[0] & 0x55555555;
     long long iteration = tosses / world_size; 
     long long int* local_count;
 
