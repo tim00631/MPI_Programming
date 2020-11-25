@@ -25,7 +25,7 @@ float fRand(__uint32_t seed) {
     // long long rand_num = ((long long)rand() << 31) + rand();
     // printf("%lld, %lld, %lf\n", rand_num, MAX, (double)rand_num/MAX);
 
-    return xor128(seed) / 4294967296.0;
+    return xor128(seed) / UINT32_MAX;
     // return ((double)rand_num / (double)MAX);
 }
 
