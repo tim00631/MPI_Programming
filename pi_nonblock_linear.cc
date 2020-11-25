@@ -110,7 +110,7 @@ int main(int argc, char **argv)
         local_count[0] = number_in_circle;
         // ===== pi Estimation Block end =====
 
-        MPI_Waitall(world_size-1,requests[1],status[1]);
+        MPI_Waitall(world_size-1,requests+1,status+1);
     }
 
     if (world_rank == 0)
