@@ -69,7 +69,7 @@ int main(int argc, char **argv)
         /* communicator = */ MPI_COMM_WORLD);
     }
 
-    else if (world_rank == 0) {
+    else if (!world_rank) {
         // TODO: master
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if (world_rank == 0) {
+    if (!world_rank) {
         // TODO: process PI result
         long long int total_count = 0;
 
