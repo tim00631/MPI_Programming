@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
     __uint32_t seed = time(NULL) * world_rank;
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
-    state->a = seed;
+    state->a = seed + 1;
     state->b = seed & 0x55555555;
 
     long long iteration = tosses / world_size; 
