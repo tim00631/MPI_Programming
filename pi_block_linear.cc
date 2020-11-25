@@ -5,7 +5,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdint.h>
-#define UINT64_C(c) (c ## ULL)
 
 struct xorshift128p_state {
   uint64_t a, b;
