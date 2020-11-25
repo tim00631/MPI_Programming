@@ -77,7 +77,7 @@ int main(int argc, char **argv)
             // double x = (double) s[0] / __UINT64_MAX__;
             // double y = (double) s[1] / __UINT64_MAX__;
 
-            float distance_squared = x * x + y * y;
+            double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
             }
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
             // uint64_t tmp = next();
             // double x = (double) s[0] / __UINT64_MAX__;
             // double y = (double) s[1] / __UINT64_MAX__;
-            float distance_squared = x * x + y * y;
+            double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
             }
