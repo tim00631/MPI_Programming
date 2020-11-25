@@ -36,11 +36,11 @@ int main(int argc, char **argv)
     // TODO: MPI init
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-    uint64_t seed = time(NULL) * (world_rank + 1);
+    
+    uint32_t seed = time(NULL) * (world_rank + 1);
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     state->a = seed + 1;
-    state->b = seed & 0x5555555555555555;
+    state->b = seed & 0x55555555;
 
     uint64_t* local_count;
 
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
         local_count[0] = number_in_circle;
         // ===== pi Estimation Block end =====
 
-        MPI_Waitall(world_size,requests,status);
+        MPI_Waitall(world_size-1,requests[1],status[1]);
     }
 
     if (world_rank == 0)
