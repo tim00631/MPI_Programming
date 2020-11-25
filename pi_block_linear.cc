@@ -140,8 +140,9 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
-            float x = fRand(seed);
-            float y = fRand(seed);
+            long_jump();
+            double x = (double)s[0] / UINT64_MAX;
+            double y = (double)s[1] / UINT64_MAX;
             float distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
