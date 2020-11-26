@@ -37,8 +37,12 @@ int main(int argc, char **argv)
     // TODO: MPI init
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
     uint32_t seed = time(NULL) * (world_rank + 1);
-    
+    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    state->a = seed + 1;
+    state->b = seed & 0x55555555;
+
     // TODO: binary tree reduction
     
     // ===== pi Estimation Block start =====
@@ -54,6 +58,7 @@ int main(int argc, char **argv)
         } 
     }
     // ===== pi Estimation Block end =====
+
     if (world_rank % 2 == 1) {
         MPI_Send(
         /* data         = */ &number_in_circle, 
@@ -98,8 +103,7 @@ int main(int argc, char **argv)
                     /* datatype     = */ MPI_LONG_LONG, 
                     /* source       = */ world_rank - s, 
                     /* tag          = */ 0,
-                    /* communicator = */ MPI_COMM_WORLD, 
-                    /* status       = */ MPI_STATUS_IGNORE); 
+                    /* communicator = */ MPI_COMM_WORLD); 
                 }
             }
             s = s * 2;
