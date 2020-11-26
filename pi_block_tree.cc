@@ -38,61 +38,77 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     uint32_t seed = time(NULL) * (world_rank + 1);
-
-    uint64_t number_in_circle = 0;
-
     
     // TODO: binary tree reduction
-
+    
     // ===== pi Estimation Block start =====
-    // for (__uint64_t i = 0; i < tosses / world_size; i++) {
-    //     uint64_t tmp = xorshift128p(state);
-    //     double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
-    //     double y = (double)(tmp >> 32) / __UINT32_MAX__;
-    //     float distance_squared = x * x + y * y;
-    //     if (distance_squared <= 1) {
-    //         number_in_circle++;
-    //     }
-    // }
+    uint64_t number_in_circle = 0;
+    uint64_t max_iter = tosses / world_size;
+    for (uint64_t i = 0; i < max_iter; i++) {
+        uint64_t tmp = xorshift128p(state);
+        double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+        double y = (double)(tmp >> 32) / __UINT32_MAX__;
+        double distance_squared = x * x + y * y;
+        if (distance_squared <= 1) {
+            number_in_circle++;
+        } 
+    }
     // ===== pi Estimation Block end =====
+    if (world_rank % 2 == 1) {
+        MPI_Send(
+        /* data         = */ &number_in_circle, 
+        /* count        = */ 1, 
+        /* datatype     = */ MPI_LONG_LONG, 
+        /* destination  = */ world_rank - 1, 
+        /* tag          = */ 0, 
+        /* communicator = */ MPI_COMM_WORLD);
+    }
+    else {
+        int s = 1;
+        for (int i = 0; i < log(world_size); i++) {
+            if(world_rank == 0) {
+                uint64_t rcv_temp = 0;
+                MPI_Recv(
+                /* data         = */ &rcv_temp, 
+                /* count        = */ 1, 
+                /* datatype     = */ MPI_LONG_LONG, 
+                /* source       = */ world_rank + s, 
+                /* tag          = */ 0,
+                /* communicator = */ MPI_COMM_WORLD, 
+                /* status       = */ MPI_STATUS_IGNORE);  
+                number_in_circle += rcv_temp; 
+            }
+            else {
+                if (world_rank + s < world_size && world_rank - s > 0) {
+                    uint64_t rcv_temp = 0;
+                    MPI_Recv(
+                    /* data         = */ &rcv_temp, 
+                    /* count        = */ 1, 
+                    /* datatype     = */ MPI_LONG_LONG, 
+                    /* source       = */ world_rank + s, 
+                    /* tag          = */ 0,
+                    /* communicator = */ MPI_COMM_WORLD, 
+                    /* status       = */ MPI_STATUS_IGNORE);  
+                    number_in_circle += rcv_temp;
+                }
+                else {
+                    MPI_Send(
+                    /* data         = */ number_in_circle, 
+                    /* count        = */ 1, 
+                    /* datatype     = */ MPI_LONG_LONG, 
+                    /* source       = */ world_rank - s, 
+                    /* tag          = */ 0,
+                    /* communicator = */ MPI_COMM_WORLD, 
+                    /* status       = */ MPI_STATUS_IGNORE); 
+                }
+            }
+            s = s * 2;
+        }
+    }
 
-    // int round = log2(world_size);
-    // int diff = 1;
-    // int jump = 2;
-    // for (int iter = 0; i < round; iter++) 
-    // {            
-    //     for (int i = 0; i< world_size; i+=diff) 
-    //     {
-
-    //     }
-    //     if(world_rank % jump == 1)
-    //     {
-    //         MPI_Send(
-    //         /* data         = */ &number_in_circle, 
-    //         /* count        = */ 1, 
-    //         /* datatype     = */ MPI_LONG_LONG, 
-    //         /* destination  = */ world_rank - diff, 
-    //         /* tag          = */ 0, 
-    //         /* communicator = */ MPI_COMM_WORLD);
-    //         break;
-    //     }
-    //     else {
-    //         MPI_Recv(
-    //         /* data         = */ &local_count[i], 
-    //         /* count        = */ 1, 
-    //         /* datatype     = */ MPI_LONG_LONG, 
-    //         /* source       = */ world_rank + diff,
-    //         /* tag          = */ 0,
-    //         /* communicator = */ MPI_COMM_WORLD, 
-    //         /* status       = */ MPI_STATUS_IGNORE);
-    //     }
-    //     diff = jump;
-    //     jump = jump << 1;
-    // }
-    if (world_rank == 0)
-    {
+    if (world_rank == 0) {
         // TODO: PI result
-
+        pi_result = ((double)number_in_circle / (double)tosses) * 4.0;
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
         printf("%lf\n", pi_result);

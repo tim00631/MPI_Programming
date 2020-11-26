@@ -61,6 +61,7 @@ int main(int argc, char **argv)
             if (distance_squared <= 1) {
                 number_in_circle++;
             }
+            
         }
         // ===== pi Estimation Block end =====
         MPI_Isend(
