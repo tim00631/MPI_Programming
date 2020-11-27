@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     // ===== pi Estimation Block end =====
     MPI_Reduce(
         /* send_data     = */ &number_in_circle, 
-        /* recv_data     = */ total_count, 
+        /* recv_data     = */ &total_count, 
         /* count         = */ 1,
         /* datatype      = */ MPI_LONG_LONG, 
         /* op            = */ MPI_SUM,
