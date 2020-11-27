@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     state->a = seed + 1;
     state->b = seed & 0x55555555;
 
-    uint64_t* total_count;
+    uint64_t* total_count = 0;
     // ===== pi Estimation Block start =====
     uint64_t number_in_circle = 0;
     uint64_t max_iter = tosses / world_size;
@@ -56,10 +56,6 @@ int main(int argc, char **argv)
         } 
     }
     // ===== pi Estimation Block end =====
-
-    if (world_rank == 0) {
-        total_count = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
-    }
     MPI_Reduce(
         /* send_data     = */ &number_in_circle, 
         /* recv_data     = */ total_count, 
