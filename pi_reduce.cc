@@ -4,6 +4,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdint.h>
 
 struct xorshift128p_state {
   uint64_t a, b;
