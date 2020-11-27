@@ -58,17 +58,18 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         // TODO: PI result
+        uint64_t total_count = 0;
         MPI_Gather(
             /* send_data     = */ &number_in_circle,
             /* send_count    = */ 1, 
             /* send_datatype = */ MPI_LONG_LONG, 
-            /* recv_data     = */ &number_in_circle, 
+            /* recv_data     = */ &total_count, 
             /* recv_count    = */ 1,
             /* recv_datatype = */ MPI_LONG_LONG, 
             /* root          = */ 0,
             /* communicator  = */ MPI_COMM_WORLD); 
-        pi_result = ((double)number_in_circle / (double)tosses) * 4.0;
-        
+        pi_result = ((double)total_count / (double)tosses) * 4.0;
+
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
         printf("%lf\n", pi_result);
