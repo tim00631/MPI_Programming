@@ -63,7 +63,7 @@ int main(int argc, char **argv)
             /* send_data     = */ &number_in_circle,
             /* send_count    = */ 1, 
             /* send_datatype = */ MPI_LONG_LONG, 
-            /* recv_data     = */ total_count, 
+            /* recv_data     = */ tmp, 
             /* recv_count    = */ 1,
             /* recv_datatype = */ MPI_LONG_LONG, 
             /* root          = */ 0,
