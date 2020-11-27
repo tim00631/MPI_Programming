@@ -58,7 +58,7 @@ int main(int argc, char **argv)
                     1,1,-1,0,
                     -1,0,0,0,
                     1,-1,0,0,
-                    -1,0,0,0,
+                    -1,0,0,0
                     };
     // TODO: binary tree reduction
     
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
             /* status       = */ MPI_STATUS_IGNORE);  
             number_in_circle += rcv_temp;
         }
-        else if(rs[world_rank][i] == -1){
+        else if(rs[world_rank][i] == -1) {
             MPI_Send(
             /* data         = */ number_in_circle, 
             /* count        = */ 1, 
