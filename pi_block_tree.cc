@@ -76,8 +76,7 @@ int main(int argc, char **argv)
     }
     // ===== pi Estimation Block end =====
     int s = 1;
-    for (int i = 0; i <= log(world_size); i++) {
-        printf("i:%d\n",i);
+    for (int i = 0; i < log(world_size); i++) {
         if(rs[world_rank][i] == 1) {
             uint64_t rcv_temp = 0;
             printf("rank %d Recv from rank %d\n", world_rank, world_rank+s);
@@ -156,6 +155,7 @@ int main(int argc, char **argv)
 
     if (world_rank == 0) {
         // TODO: PI result
+        printf("world_size:%d\n",world_size);
         pi_result = ((double)number_in_circle / (double)tosses) * 4.0;
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
