@@ -41,6 +41,8 @@ int main(int argc, char **argv)
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     state->a = seed + 1;
     state->b = seed & 0x55555555;
+
+    uint64_t* total_count;
     // ===== pi Estimation Block start =====
     uint64_t number_in_circle = 0;
     uint64_t max_iter = tosses / world_size;
@@ -53,12 +55,10 @@ int main(int argc, char **argv)
             number_in_circle++;
         } 
     }
-    // ===== pi Estimation Block end =====
-    if (world_rank == 0)
-    {
-        // TODO: PI result
-        uint64_t* total_count = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
-        MPI_Reduce(
+    if (world_rank == 0) {
+        total_count = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
+    }
+    MPI_Reduce(
         /* send_data     = */ &number_in_circle, 
         /* recv_data     = */ total_count, 
         /* count         = */ 1,
@@ -66,6 +66,11 @@ int main(int argc, char **argv)
         /* op            = */ MPI_SUM,
         /* root          = */ 0,
         /* communicator  = */ MPI_COMM_WORLD);
+    // ===== pi Estimation Block end =====
+    if (world_rank == 0)
+    {
+        // TODO: PI result
+    
 
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
