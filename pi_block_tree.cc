@@ -59,7 +59,7 @@ int main(int argc, char **argv)
                     -1,0,0,0,
                     1,-1,0,0,
                     -1,0,0,0,
-                    }
+                    };
     // TODO: binary tree reduction
     
     // ===== pi Estimation Block start =====
