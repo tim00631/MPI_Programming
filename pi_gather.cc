@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         // TODO: PI result
-        uint64_t total_count = 0;
+        uint64_t* total_count = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
         MPI_Gather(
             /* send_data     = */ &number_in_circle,
             /* send_count    = */ 1, 
