@@ -42,7 +42,24 @@ int main(int argc, char **argv)
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     state->a = seed + 1;
     state->b = seed & 0x55555555;
-
+    int rs [16][4] = {  // 1=recv, -1=send, 0=no-op 
+                    1,1,1,1, 
+                    -1,0,0,0,
+                    1,-1,0,0,
+                    -1,0,0,0,
+                    1,1,-1,0,
+                    -1,0,0,0,
+                    1,-1,0,0,
+                    -1,0,0,0,
+                    1,1,1,-1,
+                    -1,0,0,0,
+                    1,-1,0,0,
+                    -1,0,0,0,
+                    1,1,-1,0,
+                    -1,0,0,0,
+                    1,-1,0,0,
+                    -1,0,0,0,
+                    }
     // TODO: binary tree reduction
     
     // ===== pi Estimation Block start =====
@@ -58,20 +75,11 @@ int main(int argc, char **argv)
         } 
     }
     // ===== pi Estimation Block end =====
-
-    if (world_rank % 2 == 1) {
-        MPI_Send(
-        /* data         = */ &number_in_circle, 
-        /* count        = */ 1, 
-        /* datatype     = */ MPI_LONG_LONG, 
-        /* destination  = */ world_rank - 1, 
-        /* tag          = */ 0, 
-        /* communicator = */ MPI_COMM_WORLD);
-    }
-    else {
-        int s = 1;
-        for (int i = 0; i < log(world_size); i++) {
-            if(world_rank == 0) {
+    int s = 1;
+    for (int i = 0; i < log(world_size); i++) {
+        switch(rs[world_rank][i])
+        {
+            case 1:
                 uint64_t rcv_temp = 0;
                 MPI_Recv(
                 /* data         = */ &rcv_temp, 
@@ -81,56 +89,71 @@ int main(int argc, char **argv)
                 /* tag          = */ 0,
                 /* communicator = */ MPI_COMM_WORLD, 
                 /* status       = */ MPI_STATUS_IGNORE);  
-                number_in_circle += rcv_temp; 
-            }
-            else if (world_rank >= world_size / 2) {
-                if (world_rank + s < world_size && world_rank - s > world_size / 2) {
-                    uint64_t rcv_temp = 0;
-                    MPI_Recv(
-                    /* data         = */ &rcv_temp, 
-                    /* count        = */ 1, 
-                    /* datatype     = */ MPI_LONG_LONG, 
-                    /* source       = */ world_rank + s, 
-                    /* tag          = */ 0,
-                    /* communicator = */ MPI_COMM_WORLD, 
-                    /* status       = */ MPI_STATUS_IGNORE);  
-                    number_in_circle += rcv_temp;
-                }
-                else {
-                    MPI_Send(
-                    /* data         = */ &number_in_circle, 
+                number_in_circle += rcv_temp;
+                break;
+            case -1:
+                MPI_Send(
+                    /* data         = */ number_in_circle, 
                     /* count        = */ 1, 
                     /* datatype     = */ MPI_LONG_LONG, 
                     /* source       = */ world_rank - s, 
                     /* tag          = */ 0,
-                    /* communicator = */ MPI_COMM_WORLD); 
-                }
-            }
-            else {
-                if (world_rank + s < world_size && world_rank - s > 0) {
-                    uint64_t rcv_temp = 0;
-                    MPI_Recv(
-                    /* data         = */ &rcv_temp, 
-                    /* count        = */ 1, 
-                    /* datatype     = */ MPI_LONG_LONG, 
-                    /* source       = */ world_rank + s, 
-                    /* tag          = */ 0,
-                    /* communicator = */ MPI_COMM_WORLD, 
-                    /* status       = */ MPI_STATUS_IGNORE);  
-                    number_in_circle += rcv_temp;
-                }
-                else {
-                    MPI_Send(
-                    /* data         = */ &number_in_circle, 
-                    /* count        = */ 1, 
-                    /* datatype     = */ MPI_LONG_LONG, 
-                    /* source       = */ world_rank - s, 
-                    /* tag          = */ 0,
-                    /* communicator = */ MPI_COMM_WORLD); 
-                }
-            }
-            s = s * 2;
+                    /* communicator = */ MPI_COMM_WORLD);
+                break;
+            default:
+                break;
         }
+        s = s * 2;
+    }
+    // if (world_rank % 2 == 1) {
+    //     MPI_Send(
+    //     /* data         = */ &number_in_circle, 
+    //     /* count        = */ 1, 
+    //     /* datatype     = */ MPI_LONG_LONG, 
+    //     /* destination  = */ world_rank - 1, 
+    //     /* tag          = */ 0, 
+    //     /* communicator = */ MPI_COMM_WORLD);
+    // }
+    // else {
+    //     int s = 1;
+    //     for (int i = 0; i < log(world_size); i++) {
+    //         if(world_rank == 0) {
+    //             uint64_t rcv_temp = 0;
+    //             MPI_Recv(
+    //             /* data         = */ &rcv_temp, 
+    //             /* count        = */ 1, 
+    //             /* datatype     = */ MPI_LONG_LONG, 
+    //             /* source       = */ world_rank + s, 
+    //             /* tag          = */ 0,
+    //             /* communicator = */ MPI_COMM_WORLD, 
+    //             /* status       = */ MPI_STATUS_IGNORE);  
+    //             number_in_circle += rcv_temp; 
+    //         }
+    //         else {
+    //             if (world_rank + s < world_size && world_rank - s > 0) {
+    //                 uint64_t rcv_temp = 0;
+    //                 MPI_Recv(
+    //                 /* data         = */ &rcv_temp, 
+    //                 /* count        = */ 1, 
+    //                 /* datatype     = */ MPI_LONG_LONG, 
+    //                 /* source       = */ world_rank + s, 
+    //                 /* tag          = */ 0,
+    //                 /* communicator = */ MPI_COMM_WORLD, 
+    //                 /* status       = */ MPI_STATUS_IGNORE);  
+    //                 number_in_circle += rcv_temp;
+    //             }
+    //             else {
+    //                 MPI_Send(
+    //                 /* data         = */ number_in_circle, 
+    //                 /* count        = */ 1, 
+    //                 /* datatype     = */ MPI_LONG_LONG, 
+    //                 /* source       = */ world_rank - s, 
+    //                 /* tag          = */ 0,
+    //                 /* communicator = */ MPI_COMM_WORLD); 
+    //             }
+    //         }
+    //         s = s * 2;
+    //     }
     }
 
     if (world_rank == 0) {
