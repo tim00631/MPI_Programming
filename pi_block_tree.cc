@@ -91,12 +91,12 @@ int main(int argc, char **argv)
         }
         else if(rs[world_rank][i] == -1){
             MPI_Send(
-                    /* data         = */ number_in_circle, 
-                    /* count        = */ 1, 
-                    /* datatype     = */ MPI_LONG_LONG, 
-                    /* source       = */ world_rank - s, 
-                    /* tag          = */ 0,
-                    /* communicator = */ MPI_COMM_WORLD);
+            /* data         = */ number_in_circle, 
+            /* count        = */ 1, 
+            /* datatype     = */ MPI_LONG_LONG, 
+            /* source       = */ world_rank - s, 
+            /* tag          = */ 0,
+            /* communicator = */ MPI_COMM_WORLD);
         }
         s = s * 2;
     }
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
     //         }
     //         s = s * 2;
     //     }
-    }
+    // }
 
     if (world_rank == 0) {
         // TODO: PI result
