@@ -79,6 +79,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < log(world_size); i++) {
         if(rs[world_rank][i] == 1) {
             uint64_t rcv_temp = 0;
+            printf("rank %d Recv from rank %d\n", world_rank, world_rank+s);
             MPI_Recv(
             /* data         = */ &rcv_temp, 
             /* count        = */ 1, 
@@ -88,7 +89,6 @@ int main(int argc, char **argv)
             /* communicator = */ MPI_COMM_WORLD, 
             /* status       = */ MPI_STATUS_IGNORE);  
             number_in_circle += rcv_temp;
-            printf("rank %d Recv from rank %d\n", world_rank, world_rank+s);
         }
         else if(rs[world_rank][i] == -1) {
             MPI_Send(
@@ -98,6 +98,7 @@ int main(int argc, char **argv)
             /* source       = */ world_rank - s, 
             /* tag          = */ 0,
             /* communicator = */ MPI_COMM_WORLD);
+            printf("rank %d Send to rank %d\n", world_rank, world_rank-s);
         }
         s = s * 2;
     }
