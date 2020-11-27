@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     state->a = seed + 1;
     state->b = seed & 0x55555555;
-
+    uint64_t* tmp;
     // ===== pi Estimation Block start =====
     uint64_t number_in_circle = 0;
     uint64_t max_iter = tosses / world_size;
@@ -55,19 +55,22 @@ int main(int argc, char **argv)
         } 
     }
     // ===== pi Estimation Block end =====
+
+    if(world_rank == 0) {
+        tmp = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
+    }
+    MPI_Gather(
+        /* send_data     = */ &number_in_circle,
+        /* send_count    = */ 1, 
+        /* send_datatype = */ MPI_LONG_LONG, 
+        /* recv_data     = */ tmp, 
+        /* recv_count    = */ 1,
+        /* recv_datatype = */ MPI_LONG_LONG, 
+        /* root          = */ 0,
+        /* communicator  = */ MPI_COMM_WORLD);
     if (world_rank == 0)
     {
         // TODO: PI result
-        uint64_t* tmp = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
-        MPI_Gather(
-            /* send_data     = */ &number_in_circle,
-            /* send_count    = */ 1, 
-            /* send_datatype = */ MPI_LONG_LONG, 
-            /* recv_data     = */ tmp, 
-            /* recv_count    = */ 1,
-            /* recv_datatype = */ MPI_LONG_LONG, 
-            /* root          = */ 0,
-            /* communicator  = */ MPI_COMM_WORLD);
         uint64_t total_count = 0;
         for (int i = 0; i < world_size; i++) {
             total_count += tmp[i];
