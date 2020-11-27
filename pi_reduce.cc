@@ -55,7 +55,7 @@ int main(int argc, char **argv)
         } 
     }
     // ===== pi Estimation Block end =====
-    uint64_t total_count = 0;
+    uint64_t total_count;
     MPI_Reduce(
         /* send_data     = */ &number_in_circle, 
         /* recv_data     = */ &total_count, 
