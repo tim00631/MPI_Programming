@@ -156,7 +156,7 @@ int main(int argc, char **argv)
     if (world_rank == 0) {
         // TODO: PI result
         printf("world_size:%d\n",world_size);
-        printf("log world_size:%d\n",log2(world_size));
+        printf("log world_size:%d\n",(int)log2(world_size));
         pi_result = ((double)number_in_circle / (double)tosses) * 4.0;
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
