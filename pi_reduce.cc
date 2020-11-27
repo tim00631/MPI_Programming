@@ -5,6 +5,23 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+struct xorshift128p_state {
+  uint64_t a, b;
+};
+
+/* The state must be seeded so that it is not all zero */
+uint64_t xorshift128p(struct xorshift128p_state *state)
+{
+	uint64_t t = state->a;
+	uint64_t const s = state->b;
+	state->a = s;
+	t ^= t << 23;		// a
+	t ^= t >> 17;		// b
+	t ^= s ^ (s >> 26);	// c
+	state->b = t;
+	return t + s;
+}
+
 int main(int argc, char **argv)
 {
     // --- DON'T TOUCH ---
@@ -48,7 +65,7 @@ int main(int argc, char **argv)
         /* op            = */ MPI_SUM,
         /* root          = */ 0,
         /* communicator  = */ MPI_COMM_WORLD);
-        
+
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
         printf("%lf\n", pi_result);
