@@ -16,13 +16,39 @@ int main(int argc, char **argv)
     // ---
 
     // TODO: MPI init
-
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     // TODO: use MPI_Reduce
-
+    uint32_t seed = time(NULL) * (world_rank + 1);
+    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    state->a = seed + 1;
+    state->b = seed & 0x55555555;
+    // ===== pi Estimation Block start =====
+    uint64_t number_in_circle = 0;
+    uint64_t max_iter = tosses / world_size;
+    for (uint64_t i = 0; i < max_iter; i++) {
+        uint64_t tmp = xorshift128p(state);
+        double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+        double y = (double)(tmp >> 32) / __UINT32_MAX__;
+        double distance_squared = x * x + y * y;
+        if (distance_squared <= 1) {
+            number_in_circle++;
+        } 
+    }
+    // ===== pi Estimation Block end =====
     if (world_rank == 0)
     {
         // TODO: PI result
-
+        uint64_t* total_count = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
+        MPI_Gather(
+        /* send_data     = */ &number_in_circle, 
+        /* recv_data     = */ total_count, 
+        /* count         = */ 1,
+        /* datatype      = */ MPI_LONG_LONG, 
+        /* op            = */ MPI_SUM,
+        /* root          = */ 0,
+        /* communicator  = */ MPI_COMM_WORLD);
+        
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
         printf("%lf\n", pi_result);
