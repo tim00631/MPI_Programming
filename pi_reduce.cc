@@ -55,6 +55,8 @@ int main(int argc, char **argv)
             number_in_circle++;
         } 
     }
+    // ===== pi Estimation Block end =====
+
     if (world_rank == 0) {
         total_count = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
     }
@@ -66,7 +68,6 @@ int main(int argc, char **argv)
         /* op            = */ MPI_SUM,
         /* root          = */ 0,
         /* communicator  = */ MPI_COMM_WORLD);
-    // ===== pi Estimation Block end =====
     if (world_rank == 0)
     {
         // TODO: PI result
