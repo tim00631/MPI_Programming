@@ -77,6 +77,7 @@ int main(int argc, char **argv)
     // ===== pi Estimation Block end =====
     int s = 1;
     for (int i = 0; i <= log(world_size); i++) {
+        printf("i:%d\n",i);
         if(rs[world_rank][i] == 1) {
             uint64_t rcv_temp = 0;
             printf("rank %d Recv from rank %d\n", world_rank, world_rank+s);
