@@ -91,7 +91,7 @@ int main(int argc, char **argv)
         }
         else if(rs[world_rank][i] == -1) {
             MPI_Send(
-            /* data         = */ number_in_circle, 
+            /* data         = */ &number_in_circle, 
             /* count        = */ 1, 
             /* datatype     = */ MPI_LONG_LONG, 
             /* source       = */ world_rank - s, 
