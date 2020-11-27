@@ -77,31 +77,26 @@ int main(int argc, char **argv)
     // ===== pi Estimation Block end =====
     int s = 1;
     for (int i = 0; i < log(world_size); i++) {
-        switch(rs[world_rank][i])
-        {
-            case 1:
-                uint64_t rcv_temp = 0;
-                MPI_Recv(
-                /* data         = */ &rcv_temp, 
-                /* count        = */ 1, 
-                /* datatype     = */ MPI_LONG_LONG, 
-                /* source       = */ world_rank + s, 
-                /* tag          = */ 0,
-                /* communicator = */ MPI_COMM_WORLD, 
-                /* status       = */ MPI_STATUS_IGNORE);  
-                number_in_circle += rcv_temp;
-                break;
-            case -1:
-                MPI_Send(
+        if(rs[world_rank][i] == 1) {
+            uint64_t rcv_temp = 0;
+            MPI_Recv(
+            /* data         = */ &rcv_temp, 
+            /* count        = */ 1, 
+            /* datatype     = */ MPI_LONG_LONG, 
+            /* source       = */ world_rank + s, 
+            /* tag          = */ 0,
+            /* communicator = */ MPI_COMM_WORLD, 
+            /* status       = */ MPI_STATUS_IGNORE);  
+            number_in_circle += rcv_temp;
+        }
+        else if(rs[world_rank][i] == -1){
+            MPI_Send(
                     /* data         = */ number_in_circle, 
                     /* count        = */ 1, 
                     /* datatype     = */ MPI_LONG_LONG, 
                     /* source       = */ world_rank - s, 
                     /* tag          = */ 0,
                     /* communicator = */ MPI_COMM_WORLD);
-                break;
-            default:
-                break;
         }
         s = s * 2;
     }
