@@ -88,6 +88,7 @@ int main(int argc, char **argv)
             /* communicator = */ MPI_COMM_WORLD, 
             /* status       = */ MPI_STATUS_IGNORE);  
             number_in_circle += rcv_temp;
+            printf("rank %d Recv from rank %d\n", world_rank, world_rank+s);
         }
         else if(rs[world_rank][i] == -1) {
             MPI_Send(
