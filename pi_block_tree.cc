@@ -83,6 +83,29 @@ int main(int argc, char **argv)
                 /* status       = */ MPI_STATUS_IGNORE);  
                 number_in_circle += rcv_temp; 
             }
+            else if (world_rank >= world_size / 2) {
+                if (world_rank + s < world_size && world_rank - s > world_size / 2) {
+                    uint64_t rcv_temp = 0;
+                    MPI_Recv(
+                    /* data         = */ &rcv_temp, 
+                    /* count        = */ 1, 
+                    /* datatype     = */ MPI_LONG_LONG, 
+                    /* source       = */ world_rank + s, 
+                    /* tag          = */ 0,
+                    /* communicator = */ MPI_COMM_WORLD, 
+                    /* status       = */ MPI_STATUS_IGNORE);  
+                    number_in_circle += rcv_temp;
+                }
+                else {
+                    MPI_Send(
+                    /* data         = */ &number_in_circle, 
+                    /* count        = */ 1, 
+                    /* datatype     = */ MPI_LONG_LONG, 
+                    /* source       = */ world_rank - s, 
+                    /* tag          = */ 0,
+                    /* communicator = */ MPI_COMM_WORLD); 
+                }
+            }
             else {
                 if (world_rank + s < world_size && world_rank - s > 0) {
                     uint64_t rcv_temp = 0;
