@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         // TODO: PI result
-        uint64_t* total_count = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
+        uint64_t* tmp = (uint64_t*)malloc(sizeof(uint64_t) * world_size);
         MPI_Gather(
             /* send_data     = */ &number_in_circle,
             /* send_count    = */ 1, 
@@ -67,7 +67,11 @@ int main(int argc, char **argv)
             /* recv_count    = */ 1,
             /* recv_datatype = */ MPI_LONG_LONG, 
             /* root          = */ 0,
-            /* communicator  = */ MPI_COMM_WORLD); 
+            /* communicator  = */ MPI_COMM_WORLD);
+        uint64_t total_count = 0;
+        for (int i = 0; i < world_size; i++) {
+            total_count += tmp[i];
+        }
         pi_result = ((double)total_count / (double)tosses) * 4.0;
 
         // --- DON'T TOUCH ---
