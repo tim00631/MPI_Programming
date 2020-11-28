@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     state->a = seed + 1;
     state->b = seed & 0x55555555;
-    uint64_t* total_count = (uint64_t*) malloc(sizeof(uint64_t));
+    uint64_t total_count = 0;
     // ===== pi Estimation Block start =====
     uint64_t number_in_circle = 0;
     uint64_t max_iter = tosses / world_size;
@@ -59,18 +59,18 @@ int main(int argc, char **argv)
     }
     if (world_rank == 0)
     {
-        *total_count += number_in_circle;
+        total_count += number_in_circle;
         // Master
-        MPI_Win_create(total_count, sizeof(uint64_t), 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+        MPI_Win_create(&total_count, sizeof(uint64_t), 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
     }
     else
     {
         // Workers
-        MPI_Win_create(total_count, 0, 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+        MPI_Win_create(&total_count, 0, 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
         MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win);
-        MPI_Get(total_count, 1, MPI_LONG_LONG, 0, 0, 1, MPI_LONG_LONG, &win);
+        MPI_Get(&total_count, 1, MPI_LONG_LONG, 0, 0, 1, MPI_LONG_LONG, win);
         total_count += number_in_circle;
-        MPI_Put(total_count, 1, MPI_LONG_LONG, 0, 0, 1, MPI_LONG_LONG, &win);
+        MPI_Put(&total_count, 1, MPI_LONG_LONG, 0, 0, 1, MPI_LONG_LONG, win);
         MPI_Win_unlock(0, win);
         
     }
