@@ -4,6 +4,24 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdint.h>
+
+struct xorshift128p_state {
+  uint64_t a, b;
+};
+
+/* The state must be seeded so that it is not all zero */
+uint64_t xorshift128p(struct xorshift128p_state *state)
+{
+	uint64_t t = state->a;
+	uint64_t const s = state->b;
+	state->a = s;
+	t ^= t << 23;		// a
+	t ^= t >> 17;		// b
+	t ^= s ^ (s >> 26);	// c
+	state->b = t;
+	return t + s;
+}
 
 int main(int argc, char **argv)
 {
@@ -16,16 +34,45 @@ int main(int argc, char **argv)
     // ---
 
     MPI_Win win;
+    
 
     // TODO: MPI init
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+    uint32_t seed = time(NULL) * (world_rank + 1);
+    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    state->a = seed + 1;
+    state->b = seed & 0x55555555;
+    uint64_t total_count = 0;
+    // ===== pi Estimation Block start =====
+    uint64_t number_in_circle = 0;
+    uint64_t max_iter = tosses / world_size;
+    for (uint64_t i = 0; i < max_iter; i++) {
+        uint64_t tmp = xorshift128p(state);
+        double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+        double y = (double)(tmp >> 32) / __UINT32_MAX__;
+        double distance_squared = x * x + y * y;
+        if (distance_squared <= 1) {
+            number_in_circle++;
+        } 
+    }
     if (world_rank == 0)
     {
+        total_count += number_in_circle;
         // Master
+        MPI_Win_create(&total_count, sizeof(uint64_t), 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
     }
     else
     {
         // Workers
+        MPI_Win_create(&total_count, 0, 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+        MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win);
+        MPI_Get(&total_count, 1, MPI_LONG_LONG, 0, 0, 1,MPI_LONG_LONG, &win);
+        total_count += number_in_circle;
+        MPI_Put(&total_count, 1, MPI_LONG_LONG, 0, 0, 1,MPI_LONG_LONG, &win);
+        MPI_Win_unlock(0, win);
+        
     }
 
     MPI_Win_free(&win);
@@ -33,7 +80,7 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         // TODO: handle PI result
-
+        pi_result = ((double)total_count / (double)tosses) * 4.0;
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
         printf("%lf\n", pi_result);
