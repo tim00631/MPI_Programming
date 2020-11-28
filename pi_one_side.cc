@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     state->a = seed + 1;
     state->b = seed & 0x55555555;
-    uint64_t total_count = 0;
+    uint64_t* local_count;
     // ===== pi Estimation Block start =====
     uint64_t number_in_circle = 0;
     uint64_t max_iter = tosses / world_size;
@@ -59,19 +59,21 @@ int main(int argc, char **argv)
     }
     if (world_rank == 0)
     {
-        total_count += number_in_circle;
+        // total_count += number_in_circle;
         // Master
-        MPI_Win_create(&total_count, sizeof(uint64_t), 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+        local_count = (uint64_t *) malloc(sizeof(uint64_t) * world_size);
+        MPI_Win_create(local_count, sizeof(uint64_t), world_size, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+        MPI_Put(&number_in_circle, 1, MPI_LONG_LONG, 0, world_rank, 1, MPI_LONG_LONG, win);
     }
     else
     {
         // Workers
-        MPI_Win_create(&total_count, 0, 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
-        MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win);
-        MPI_Get(&total_count, 1, MPI_LONG_LONG, 0, 0, 1, MPI_LONG_LONG, win);
-        total_count += number_in_circle;
-        MPI_Put(&total_count, 1, MPI_LONG_LONG, 0, 0, 1, MPI_LONG_LONG, win);
-        MPI_Win_unlock(0, win);
+        MPI_Win_create(local_count, 0, 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+        // MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win);
+        // MPI_Get(&total_count, 1, MPI_LONG_LONG, 0, 0, 1, MPI_LONG_LONG, win);
+        // total_count += number_in_circle;
+        MPI_Put(&number_in_circle, 1, MPI_LONG_LONG, 0, world_rank, 1, MPI_LONG_LONG, win);
+        // MPI_Win_unlock(0, win);
         
     }
 
@@ -80,7 +82,14 @@ int main(int argc, char **argv)
     if (world_rank == 0)
     {
         // TODO: handle PI result
+        uint64_t total_count = 0;
+
+        for (int i = 0; i < world_size; i++) {
+            // printf("local_count[%d]:%lld\n", i, local_count[i]);
+            total_count += local_count[i];
+        }
         pi_result = ((double)total_count / (double)tosses) * 4.0;
+
         // --- DON'T TOUCH ---
         double end_time = MPI_Wtime();
         printf("%lf\n", pi_result);
