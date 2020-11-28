@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         // total_count += number_in_circle;
         // Master
         local_count = (uint64_t *) malloc(sizeof(uint64_t) * world_size);
-        MPI_Win_create(local_count, sizeof(uint64_t), world_size, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+        MPI_Win_create(local_count, sizeof(uint64_t) * world_size, 1, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
         MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win);
         MPI_Put(&number_in_circle, 1, MPI_LONG_LONG, 0, world_rank, 1, MPI_LONG_LONG, win);
         MPI_Win_unlock(0, win);
