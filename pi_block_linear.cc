@@ -24,7 +24,7 @@ double xorshift128p(struct xorshift128p_state *state)
     state->b = s0;
     s1 ^= s1 << 23; // a
     state->a = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5); // b, c
-    return cvt.d - 1.0d;
+    return convert.d - 1.0d;
 }
 
 int main(int argc, char **argv)
