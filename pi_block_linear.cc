@@ -8,22 +8,23 @@
 
 uint64_t s[2];
 
-union dc {
-    double d;
-    uint64_t i;
-};
+// union dc {
+//     double d;
+//     uint64_t i;
+// };
 
 double xorshift128p(uint64_t *s)
 {
 	uint64_t s1 = s[0];
 	const uint64_t s0 = s[1];
-    const uint64_t result = s0 + s1;
-    union dc convert;
-    convert.i = ((result >> 12) | (UINT64_C(0x3FF) << 52));
+    // const uint64_t result = s0 + s1;
+    // union dc convert;
+    // convert.i = ((result >> 12) | (UINT64_C(0x3FF) << 52));
     s[0] = s0;
     s1 ^= s1 << 23; // a
     s[1] = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5); // b, c
-    return convert.d - 1.0d;
+    return s[1] + s0;
+    // return convert.d - 1.0d;
 }
 
 int main(int argc, char **argv)
@@ -52,11 +53,11 @@ int main(int argc, char **argv)
         // TODO: handle workers
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
-            // uint64_t tmp = xorshift128p(state);
-            // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
-            // double y = (double)(tmp >> 32) / __UINT32_MAX__;
-            double x = xorshift128p(s);
-            double y = xorshift128p(s);
+            uint64_t tmp = xorshift128p(s);
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
+            // double x = xorshift128p(s);
+            // double y = xorshift128p(s);
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
@@ -77,11 +78,11 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
-            // uint64_t tmp = xorshift128p(state);
-            // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
-            // double y = (double)(tmp >> 32) / __UINT32_MAX__;
-            double x = xorshift128p(s);
-            double y = xorshift128p(s);
+            uint64_t tmp = xorshift128p(s);
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
+            // double x = xorshift128p(s);
+            // double y = xorshift128p(s);
             // uint64_t tmp = next();
             // double x = (double) s[0] / __UINT64_MAX__;
             // double y = (double) s[1] / __UINT64_MAX__;
