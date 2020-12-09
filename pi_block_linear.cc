@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     __uint32_t seed = time(NULL) * (world_rank + 1);
-    srand ((unsigned) time (NULL));
+
     // struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     uint64_t s[2];
     s[0] = seed;
@@ -66,12 +66,9 @@ int main(int argc, char **argv)
         // TODO: handle workers
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
-            // uint64_t tmp = xorshift128p(s);
-            double x = (double)rand_r(&seed) / __UINT32_MAX__;
-            double y = (double)rand_r(&seed) / __UINT32_MAX__;
-
-            // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
-            // double y = (double)(tmp >> 32) / __UINT32_MAX__;
+            uint64_t tmp = xorshift128p(s);
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
             // double x = xorshift128p(s);
             // double y = xorshift128p(s);
             double distance_squared = x * x + y * y;
@@ -94,15 +91,14 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
-            // uint64_t tmp = xorshift128p(s);
-            double x = (double)rand_r(&seed) / INT32_MAX;
-            double y = (double)rand_r(&seed) / INT32_MAX;
-
-            // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
-            // double y = (double)(tmp >> 32) / __UINT32_MAX__;
+            uint64_t tmp = xorshift128p(s);
+            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            double y = (double)(tmp >> 32) / __UINT32_MAX__;
             // double x = xorshift128p(s);
             // double y = xorshift128p(s);
-            
+            // uint64_t tmp = next();
+            // double x = (double) s[0] / __UINT64_MAX__;
+            // double y = (double) s[1] / __UINT64_MAX__;
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
