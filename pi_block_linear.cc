@@ -13,19 +13,31 @@ uint64_t s[2];
 //     uint64_t i;
 // };
 
-inline double xorshift128p(uint64_t *s)
+uint64_t xorshift128p(uint64_t *s)
 {
-	uint64_t s1 = s[0];
-	const uint64_t s0 = s[1];
-    // const uint64_t result = s0 + s1;
-    // union dc convert;
-    // convert.i = ((result >> 12) | (UINT64_C(0x3FF) << 52));
-    s[0] = s0;
-    s1 ^= s1 << 23; // a
-    s[1] = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5); // b, c
-    return s[1] + s0;
-    // return convert.d - 1.0d;
+	uint64_t t = state->a;
+	uint64_t const s = state->b;
+	state->a = s;
+	t ^= t << 23;		// a
+	t ^= t >> 17;		// b
+	t ^= s ^ (s >> 26);	// c
+	state->b = t;
+	return t + s;
 }
+
+// inline double xorshift128p(uint64_t *s)
+// {
+// 	uint64_t s1 = s[0];
+// 	const uint64_t s0 = s[1];
+//     // const uint64_t result = s0 + s1;
+//     // union dc convert;
+//     // convert.i = ((result >> 12) | (UINT64_C(0x3FF) << 52));
+//     s[0] = s0;
+//     s1 ^= s1 << 23; // a
+//     s[1] = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5); // b, c
+//     return s[1] + s0;
+//     // return convert.d - 1.0d;
+// }
 
 int main(int argc, char **argv)
 {
