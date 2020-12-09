@@ -14,7 +14,7 @@ union dc {
     uint64_t i;
 };
 
-double xorshift128p(struct xorshift128p_state *state)
+inline double xorshift128p(struct xorshift128p_state *state)
 {
 	uint64_t s1 = state->a;
 	const uint64_t s0 = state->b;
