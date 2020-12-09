@@ -95,8 +95,8 @@ int main(int argc, char **argv)
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
             // uint64_t tmp = xorshift128p(s);
-            double x = (double)rand_r(&seed) / __UINT32_MAX__;
-            double y = (double)rand_r(&seed) / __UINT32_MAX__;
+            double x = (double)rand_r(&seed) / INT32_MAX;
+            double y = (double)rand_r(&seed) / INT32_MAX;
 
             // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             // double y = (double)(tmp >> 32) / __UINT32_MAX__;
