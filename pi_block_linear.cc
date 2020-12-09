@@ -12,7 +12,7 @@ struct xorshift128p_state {
 union dc {
     double d;
     uint64_t i;
-}
+};
 
 double xorshift128p(struct xorshift128p_state *state)
 {
