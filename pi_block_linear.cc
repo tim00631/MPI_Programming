@@ -71,8 +71,8 @@ int main(int argc, char **argv)
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
             // double x = xorshift128p(s);
             // double y = xorshift128p(s);
-            double distance_squared = x * x + y * y;
-            if (distance_squared <= 1) {
+            // double distance_squared = x * x + y * y;
+            if (x * x + y * y <= 1) {
                 number_in_circle++;
             }
         }
@@ -99,8 +99,8 @@ int main(int argc, char **argv)
             // uint64_t tmp = next();
             // double x = (double) s[0] / __UINT64_MAX__;
             // double y = (double) s[1] / __UINT64_MAX__;
-            double distance_squared = x * x + y * y;
-            if (distance_squared <= 1) {
+            // double distance_squared = x * x + y * y;
+            if (x * x + y * y <= 1) {
                 number_in_circle++;
             }
         }
