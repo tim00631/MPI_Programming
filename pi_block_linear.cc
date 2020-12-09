@@ -13,7 +13,7 @@
 //     uint64_t i;
 // };
 
-uint64_t xorshift128p(uint64_t *s)
+inline uint64_t xorshift128p(uint64_t *s)
 {
 	uint64_t t = s[0];
 	uint64_t const r = s[1];
