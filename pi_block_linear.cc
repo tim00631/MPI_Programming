@@ -9,18 +9,22 @@
 struct xorshift128p_state {
   uint64_t a, b;
 };
+union dc {
+    double d;
+    uint64_t i;
+}
 
-/* The state must be seeded so that it is not all zero */
-uint64_t xorshift128p(struct xorshift128p_state *state)
+double xorshift128p(struct xorshift128p_state *state)
 {
-	uint64_t t = state->a;
-	uint64_t const s = state->b;
-	state->a = s;
-	t ^= t << 23;		// a
-	t ^= t >> 17;		// b
-	t ^= s ^ (s >> 26);	// c
-	state->b = t;
-	return t + s;
+	uint64_t s1 = state->a;
+	const uint64_t s0 = state->b;
+    const uint64_t result = s0 + s1;
+    union dc convert;
+    convert.i = ((result >> 12) | (UINT64_C(0x3FF) << 52));
+    state->b = s0;
+    s1 ^= s1 << 23; // a
+    state->a = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5); // b, c
+    return cvt.d - 1.0d;
 }
 
 int main(int argc, char **argv)
@@ -49,10 +53,11 @@ int main(int argc, char **argv)
         // TODO: handle workers
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
-            uint64_t tmp = xorshift128p(state);
-            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
-            double y = (double)(tmp >> 32) / __UINT32_MAX__;
-
+            // uint64_t tmp = xorshift128p(state);
+            // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            // double y = (double)(tmp >> 32) / __UINT32_MAX__;
+            double x = xorshift128p(state) / __DBL_MAX__;
+            double y = xorshift128p(state) / __DBL_MAX__;
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
@@ -73,10 +78,11 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < tosses / world_size; i++) {
-            uint64_t tmp = xorshift128p(state);
-            double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
-            double y = (double)(tmp >> 32) / __UINT32_MAX__;
-
+            // uint64_t tmp = xorshift128p(state);
+            // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
+            // double y = (double)(tmp >> 32) / __UINT32_MAX__;
+            double x = xorshift128p(state) / __DBL_MAX__;
+            double y = xorshift128p(state) / __DBL_MAX__;
             // uint64_t tmp = next();
             // double x = (double) s[0] / __UINT64_MAX__;
             // double y = (double) s[1] / __UINT64_MAX__;
