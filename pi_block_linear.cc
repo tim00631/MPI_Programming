@@ -6,24 +6,23 @@
 #include <unistd.h>
 #include <stdint.h>
 
-struct xorshift128p_state {
-  uint64_t a, b;
-};
+uint64_t s[2];
+
 union dc {
     double d;
     uint64_t i;
 };
 
-double xorshift128p(struct xorshift128p_state *state)
+double xorshift128p(uint64_t *s)
 {
-	uint64_t s1 = state->a;
-	const uint64_t s0 = state->b;
+	uint64_t s1 = s[0];
+	const uint64_t s0 = s[1];
     const uint64_t result = s0 + s1;
     union dc convert;
     convert.i = ((result >> 12) | (UINT64_C(0x3FF) << 52));
-    state->a = s0;
+    s[0] = s0;
     s1 ^= s1 << 23; // a
-    state->b = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5); // b, c
+    s[1] = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5); // b, c
     return convert.d - 1.0d;
 }
 
@@ -42,9 +41,9 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     __uint32_t seed = time(NULL) * (world_rank + 1);
 
-    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
-    state->a = seed + 1;
-    state->b = seed & 0x55555555;
+    // struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    s[0] = seed;
+    s[1] = seed & 0x55555555;
     
     long long iteration = tosses / world_size; 
     long long int* local_count;
@@ -56,8 +55,8 @@ int main(int argc, char **argv)
             // uint64_t tmp = xorshift128p(state);
             // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             // double y = (double)(tmp >> 32) / __UINT32_MAX__;
-            double x = xorshift128p(state);
-            double y = xorshift128p(state);
+            double x = xorshift128p(s);
+            double y = xorshift128p(s);
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
