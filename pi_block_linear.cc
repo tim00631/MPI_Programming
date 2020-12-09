@@ -16,13 +16,13 @@ uint64_t s[2];
 uint64_t xorshift128p(uint64_t *s)
 {
 	uint64_t t = s[0];
-	uint64_t const s = s[1];
-	s[0]= s;
+	uint64_t const r = s[1];
+	s[0] = r;
 	t ^= t << 23;		// a
 	t ^= t >> 17;		// b
-	t ^= s ^ (s >> 26);	// c
+	t ^= r ^ (r >> 26);	// c
 	s[1]= t;
-	return t + s;
+	return t + r;
 }
 
 // inline double xorshift128p(uint64_t *s)
