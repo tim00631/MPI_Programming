@@ -14,10 +14,10 @@ union dc {
     uint64_t i;
 };
 
-double xorshift128p(uint64_t *s)
+double xorshift128p(struct xorshift128p_state *state)
 {
-	uint64_t s1 = s[0];
-	const uint64_t s0 = s[1];
+	uint64_t s1 = state->a;
+	const uint64_t s0 = state->b;
     const uint64_t result = s0 + s1;
     union dc convert;
     convert.i = ((result >> 12) | (UINT64_C(0x3FF) << 52));
