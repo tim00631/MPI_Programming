@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdint.h>
 
-uint64_t s[2];
+
 
 // union dc {
 //     double d;
@@ -55,6 +55,7 @@ int main(int argc, char **argv)
     __uint32_t seed = time(NULL) * (world_rank + 1);
 
     // struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    uint64_t s[2];
     s[0] = seed;
     s[1] = seed & 0x55555555;
     
