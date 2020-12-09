@@ -56,8 +56,8 @@ int main(int argc, char **argv)
             // uint64_t tmp = xorshift128p(state);
             // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             // double y = (double)(tmp >> 32) / __UINT32_MAX__;
-            double x = xorshift128p(state) / __DBL_MAX__;
-            double y = xorshift128p(state) / __DBL_MAX__;
+            double x = xorshift128p(state);
+            double y = xorshift128p(state);
             double distance_squared = x * x + y * y;
             if (distance_squared <= 1) {
                 number_in_circle++;
@@ -81,8 +81,8 @@ int main(int argc, char **argv)
             // uint64_t tmp = xorshift128p(state);
             // double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             // double y = (double)(tmp >> 32) / __UINT32_MAX__;
-            double x = xorshift128p(state) / __DBL_MAX__;
-            double y = xorshift128p(state) / __DBL_MAX__;
+            double x = xorshift128p(state);
+            double y = xorshift128p(state);
             // uint64_t tmp = next();
             // double x = (double) s[0] / __UINT64_MAX__;
             // double y = (double) s[1] / __UINT64_MAX__;
