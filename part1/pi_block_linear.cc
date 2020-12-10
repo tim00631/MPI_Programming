@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     // TODO: init MPI
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-    __uint32_t seed = time(NULL) * (world_rank + 1);
+    __uint32_t seed = 512023920 * (world_rank + 1);
 
     // struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
     uint64_t s[2];
