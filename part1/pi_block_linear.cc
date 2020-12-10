@@ -6,17 +6,34 @@
 #include <unistd.h>
 #include <stdint.h>
 
-uint64_t xorshift128p(uint64_t *s)
+struct xorshift128p_state {
+  uint64_t a, b;
+};
+
+/* The state must be seeded so that it is not all zero */
+uint64_t xorshift128p(struct xorshift128p_state *state)
 {
-	uint64_t t = s[0];
-	uint64_t const r = s[1];
-	s[0] = r;
+	uint64_t t = state->a;
+	uint64_t const s = state->b;
+	state->a = s;
 	t ^= t << 23;		// a
 	t ^= t >> 17;		// b
-	t ^= r ^ (r >> 26);	// c
-	s[1]= t;
-	return t + r;
+	t ^= s ^ (s >> 26);	// c
+	state->b = t;
+	return t + s;
 }
+
+// uint64_t xorshift128p(uint64_t *s)
+// {
+// 	uint64_t t = s[0];
+// 	uint64_t const r = s[1];
+// 	s[0] = r;
+// 	t ^= t << 23;		// a
+// 	t ^= t >> 17;		// b
+// 	t ^= r ^ (r >> 26);	// c
+// 	s[1]= t;
+// 	return t + r;
+// }
 
 // union dc {
 //     double d;
@@ -51,10 +68,13 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     __uint32_t seed = 512023920 * (world_rank + 1);
 
-    // struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
-    uint64_t s[2];
-    s[0] = seed;
-    s[1] = seed & 0x55555555;
+    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    state->a = seed;
+    state->b = seed & 0x55555555;
+
+    // uint64_t s[2];
+    // s[0] = seed;
+    // s[1] = seed & 0x55555555;
     
     long long iteration = tosses / world_size; 
     long long int* local_count;
@@ -63,7 +83,8 @@ int main(int argc, char **argv)
         // TODO: handle workers
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
-            uint64_t tmp = xorshift128p(s);
+            uint64_t tmp = xorshift128p(state);
+            // uint64_t tmp = xorshift128p(s);
             double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
             // double x = xorshift128p(s);
@@ -88,7 +109,8 @@ int main(int argc, char **argv)
         local_count =(long long int*)malloc(sizeof(long long int) * world_size); // initialize global variable
         long long int number_in_circle = 0;
         for (int i = 0; i < iteration; i++) {
-            uint64_t tmp = xorshift128p(s);
+            uint64_t tmp = xorshift128p(state);
+            // uint64_t tmp = xorshift128p(s);
             double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
             // double x = xorshift128p(s);
