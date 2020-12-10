@@ -49,9 +49,12 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     
     uint32_t seed = time(NULL) * (world_rank + 1);
-    struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
-    state->a = seed + 1;
-    state->b = seed & 0x55555555;
+    // struct xorshift128p_state* state = (struct xorshift128p_state*)malloc(sizeof(struct xorshift128p_state));
+    // state->a = seed + 1;
+    // state->b = seed & 0x55555555;
+    uint64_t s[2];
+    s[0] = seed;
+    s[1] = seed & 0x55555555;
 
     uint64_t* local_count;
 
@@ -65,7 +68,8 @@ int main(int argc, char **argv)
         uint64_t max_iter = tosses / world_size;
         for (uint64_t i = 0; i < max_iter; i++)
         {
-            uint64_t tmp = xorshift128p(state);
+            uint64_t tmp = xorshift128p(s);
+            // uint64_t tmp = xorshift128p(state);
             double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
             double distance_squared = x * x + y * y;
@@ -110,7 +114,7 @@ int main(int argc, char **argv)
         uint64_t max_iter = tosses / world_size;
         for (uint64_t i = 0; i < max_iter; i++)
         {
-            uint64_t tmp = xorshift128p(state);
+            uint64_t tmp = xorshift128p(s);
             double x = (double)(tmp << 32 >> 32) / __UINT32_MAX__;
             double y = (double)(tmp >> 32) / __UINT32_MAX__;
             float distance_squared = x * x + y * y;
