@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
 		double num_GB = (double)num_B / (double)B_in_GB;
 		double avg_time_per_transfer = elapsed_time / (2.0*(double)loop_count);
 
-		if(rank == 0) printf("%10li\t%15.9f\n", num_B, avg_time_per_transfer);
+		// if(rank == 0) printf("%10li\t%15.9f\n", num_B, avg_time_per_transfer);
+		if(rank == 0) printf("%15.9f\n", avg_time_per_transfer);
 
 		free(A);
 	}
