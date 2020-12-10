@@ -6,21 +6,32 @@
 #include <unistd.h>
 #include <stdint.h>
 
-struct xorshift128p_state {
-  uint64_t a, b;
-};
+// struct xorshift128p_state {
+//   uint64_t a, b;
+// };
 
-/* The state must be seeded so that it is not all zero */
-uint64_t xorshift128p(struct xorshift128p_state *state)
+// /* The state must be seeded so that it is not all zero */
+// uint64_t xorshift128p(struct xorshift128p_state *state)
+// {
+// 	uint64_t t = state->a;
+// 	uint64_t const s = state->b;
+// 	state->a = s;
+// 	t ^= t << 23;		// a
+// 	t ^= t >> 17;		// b
+// 	t ^= s ^ (s >> 26);	// c
+// 	state->b = t;
+// 	return t + s;
+// }
+uint64_t xorshift128p(uint64_t *s)
 {
-	uint64_t t = state->a;
-	uint64_t const s = state->b;
-	state->a = s;
+	uint64_t t = s[0];
+	uint64_t const r = s[1];
+	s[0] = r;
 	t ^= t << 23;		// a
 	t ^= t >> 17;		// b
-	t ^= s ^ (s >> 26);	// c
-	state->b = t;
-	return t + s;
+	t ^= r ^ (r >> 26);	// c
+	s[1]= t;
+	return t + r;
 }
 
 int main(int argc, char **argv)
