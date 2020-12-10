@@ -93,7 +93,7 @@ int main(int argc, char **argv)
         } 
     }
     // ===== pi Estimation Block end =====
-    int s = 1;
+    int diff = 1;
     for (int i = 0; i < log2(world_size); i++) {
         if(rs[world_rank][i] == 1) {
             uint64_t rcv_temp = 0;
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
             /* data         = */ &rcv_temp, 
             /* count        = */ 1, 
             /* datatype     = */ MPI_LONG_LONG, 
-            /* source       = */ world_rank + s, 
+            /* source       = */ world_rank + diff, 
             /* tag          = */ 0,
             /* communicator = */ MPI_COMM_WORLD, 
             /* status       = */ MPI_STATUS_IGNORE);  
@@ -112,11 +112,11 @@ int main(int argc, char **argv)
             /* data         = */ &number_in_circle, 
             /* count        = */ 1, 
             /* datatype     = */ MPI_LONG_LONG, 
-            /* source       = */ world_rank - s, 
+            /* source       = */ world_rank - diff, 
             /* tag          = */ 0,
             /* communicator = */ MPI_COMM_WORLD);
         }
-        s = s * 2;
+        diff = diff * 2;
     }
     if (world_rank == 0) {
         // TODO: PI result
